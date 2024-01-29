@@ -548,6 +548,9 @@ func (hc *grpcHandlerConn) Close(err error) (retErr error) {
 			addHeaderCanonical(hc.responseWriter.Header(), headerTrailer, key)
 		}
 		hc.responseWriter.WriteHeader(http.StatusOK)
+		// Flush before setting our trailers to prevent them from being sent
+		// twice in headers and trailers.
+		flushResponseWriter(hc.responseWriter)
 		for key, values := range mergedTrailers {
 			for _, value := range values {
 				// These are potentially user-supplied, so we can't assume they're in
